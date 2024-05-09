@@ -1,3 +1,5 @@
+# Recibe datos desde una Xbee por UART 
+
 import serial
 from time import sleep
 from serial.tools import list_ports
