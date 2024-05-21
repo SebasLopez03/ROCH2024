@@ -33,7 +33,7 @@ def map_val_ang(twist):
         right_motor = 0.0
     elif twist.angular.z < 127:
         left_motor = -((127 - twist.angular.z) / 127.0)    
-        right_motor = ((127 - twist.angular.z) / 127.0)        ### Revisar formulas ###
+        right_motor = ((127 - twist.angular.z) / 127.0)        
     else:
         left_motor = ((twist.angular.z - 128) / 127.0)
         right_motor = -((twist.angular.z - 128) / 127.0)
