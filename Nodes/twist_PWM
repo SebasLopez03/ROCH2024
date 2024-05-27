@@ -1,4 +1,4 @@
-from twist_PWM import twist_PWM
+from simple_drive import twist_PWM
 
 if __name__ == '__main__':
     twist_PWM.main()
