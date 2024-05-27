@@ -1,4 +1,4 @@
-from twist_PWM import drive_mux
+from simple_drive import drive_mux
 
 if __name__ == '__main__':
     drive_mux.main()
