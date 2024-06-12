@@ -1,4 +1,4 @@
-from simple_drive import drive_mux
+from drive import drive_mux
 
 if __name__ == '__main__':
     drive_mux.main()
