@@ -1,50 +1,56 @@
-# vamos a recibir los datos twist para hacer el mapeo y la señal pwm
+# recibimos la señal del joystick con valores entre 0 y 255
+# 127 es la posicion neutra, 0 hacia adelante y 255 hacia atras
 
-""""
-twist:
-    lineal:
-        x:byte
-        y:0
-        z:0
-    angular:
-        x:0
-        y:0
-        z:byte
+# Constante que representa la posición neutra del joystick
+standard = 127.0
 
-"""
-# leer el valor twist.lineal.x desde el topico "drive_mux(sub)"
-twist = ...
-
-def map_val_lin(twist):
-    # velocidad linear
-    # Mapeamos los valores de twist para que esten entre -1.0 y 1.0
-    if twist.lineal.x == 127:
+# Función que mapea los valores del joystick a velocidades lineales
+# Mapeamos los valores del joystick entre 0 y 10 para asignanrlo al TWIST
+def map_val_lin(lineal):
+    if lineal == standard:
         return 0.0
-    elif twist.lineal.x < 127:
-        return (twist.lineal.x / 127.0) - 1.0
+    elif lineal < standard:
+        return 10 - ((lineal / standard) * 10)                  
     else:
-        return (twist.lineal.x - 128) / 127.0
+        return ((lineal - standard) * 10 ) / (standard + 1)
 
-def map_val_ang(twist):
-    # velocidad angular
-    # Mapeamos los valores de twist para los motores izquierdo y derecho
-    if twist.angular.z == 127:
+# Función que mapea los valores del joystick a velocidades angulares
+# Mapeamos los valores del joystick para los motores izquierdo y derecho
+def map_val_ang(angular):
+    if angular == standard:
         left_motor = 0.0
         right_motor = 0.0
-    elif twist.angular.z < 127:
-        left_motor = -((127 - twist.angular.z) / 127.0)    
-        right_motor = ((127 - twist.angular.z) / 127.0)        
+    elif angular < standard:
+        #considerando que en este caso el giro es a la izquierda
+        left_motor = -((10 - ((angular / standard) * 10)))
+        right_motor = (10 - ((angular / standard) * 10))       ### Revisar bytes ###
     else:
-        left_motor = ((twist.angular.z - 128) / 127.0)
-        right_motor = -((twist.angular.z - 128) / 127.0)
+        left_motor = ((angular - standard) * 10 ) / (standard + 1)
+        right_motor = -(((angular - standard) * 10 ) / (standard + 1))
     return left_motor, right_motor
 
-# Ejemplo de uso
-linear_speed = map_val_lin(twist)
-left_motor_speed, right_motor_speed = map_val_ang(twist)
+#generar el PWM de 0 a 255
+def twist_to_pwm(linear, angular):
+    pwm_linear = map_value(int(abs(linear)), 0, 10, 0, 255)
+    left_pwm, right_pwm = map_val_ang(angular)
 
-print(f"Linear Speed: {linear_speed}")
-print(f"Left Motor Speed: {left_motor_speed}")
-print(f"Right Motor Speed: {right_motor_speed}")
+    left_pwm = map_value(int(abs(left_pwm)), 0, 10, 0, 255)
+    right_pwm = map_value(int(abs(right_pwm)), 0, 10, 0, 255)
 
-# enviar al arduino
+#pasamos los valores de [0,10] a [0,255]
+def map_value(value, in_min, in_max, out_min, out_max):
+    return (value - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
+
+def main():
+    # Data proviene del joystick como una cadena de 8 bytes
+    data = read_joystick_data()
+    lineal = data[1]
+    angular = data[2]
+
+    twist = Twist()
+    twist.linear.x = map_val_lin(lineal)
+    twist.angular.z = map_val_ang(angular)
+
+def read_joystick_data():
+    #obtenemos los datos del joystick
+    return bytearray(8)
