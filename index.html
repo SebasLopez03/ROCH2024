@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Control de Flechas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const socket = io();
+
+            socket.on('message', function(message) {
+                document.getElementById('messages').innerText = message;
+            });
+
+            document.addEventListener('keydown', function(event) {
+                let key;
+                switch(event.key) {
+                    case 'ArrowUp':
+                        key = 'up';
+                        break;
+                    case 'ArrowDown':
+                        key = 'down';
+                        break;
+                    case 'ArrowLeft':
+                        key = 'left';
+                        break;
+                    case 'ArrowRight':
+                        key = 'right';
+                        break;
+                    default:
+                        return; // Si no es una flecha, no hacemos nada.
+                }
+                fetch(`/send_byte/${key}`)
+                    .then(response => response.text())
+                    .then(data => console.log(data));
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Presiona las flechas del teclado</h1>
+    <div id="messages"></div>
+</body>
+</html>
