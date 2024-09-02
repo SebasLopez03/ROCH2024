@@ -135,12 +135,12 @@ def pqt_interpret(bytearray_):
 
 def pqt_build(header, data_list):
     try:
-        if header is int:
+        if isinstance(header, int):
             pck = bytearray()
         else:
             return 1, 0
         
-        pck.append(header.to_bytes(1))
+        pck.extend(header.to_bytes(1, "big"))
         data_list = list_to_bytearray(data_list)
         pck.extend(data_list)
         add_checksum(pck)
